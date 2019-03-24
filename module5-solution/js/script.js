@@ -83,38 +83,19 @@ document.addEventListener("DOMContentLoaded", function (event) {
 showLoading("#main-content");
 $ajaxUtils.sendGetRequest(
   allCategoriesUrl,
-  function buildAndShowHomeHTML (categories){ 
+  // Builds HTML for the home page based on categories array
+// returned from the server.
+function buildAndShowHomeHTML (categories) {
+
   // Load home snippet page
-      $ajaxUtils.sendGetRequest(
-        homeHtmlUrl,
-        function (homeHtml) {
-          // Load title snippet of categories page
-          $ajaxUtils.sendGetRequest(
-            categoriesTitleHtml, 
-            //Retrieve single category snippet
-              function(categoryHtml){
-                $ajaxUtils.sendGetRequest(
-                  categoryHtml,
+  $ajaxUtils.sendGetRequest(
+    homeHtmlUrl,
+    function (homeHtml) {
 
-                  function (categoryHtml) {
-                    var categoriesViewHtml = buildCategoriesViewHtml(categories, categoriesTitleHtml, categoryHtml);
-                    insertHtml("#main-content", categoriesViewHtml);
-                  },
-                  false;
-                      
-                      function (categoryHtml)
-
-                    var chosenCategoryShortName = chooseRandomCategory(categories, categoriesTitleHtml, categoryHtml);
-                    insertHtml("#main-content", categoriesViewHtml);
-                  },
-              false);
-              });
-            },
-            true);
-          });
       // TODO: STEP 2: Here, call chooseRandomCategory, passing it retrieved 'categories'
       // Pay attention to what type of data that function returns vs what the chosenCategoryShortName
       // variable's name implies it expects.
+      var chosenCategoryShortName = chooseRandomCategory(categories).short_name;
 
 
       // TODO: STEP 3: Substitute {{randomCategoryShortName}} in the home html snippet with the
@@ -124,30 +105,24 @@ $ajaxUtils.sendGetRequest(
       // syntax because the substitution of {{randomCategoryShortName}} becomes an argument
       // being passed into the $dc.loadMenuItems function. Think about what that argument needs
       // to look like. For example, a valid call would look something like this:
-      // $dc.loadMenuItems('L');
-      // Load the menu categories view
-      dc.loadMenuCategories = function (randomCategoryShortName) {
-        showLoading("#main-content");
-        $ajaxUtils.sendGetRequest(
-          menuItemsUrl + randomCategoryShortName,
-          buildAndShowCategoriesHTML);
-      };
-
+      // $dc.loadMenuItems('L')
       // Hint: you need to surround the chosen category short name with something before inserting
       // it into the home html snippet.
       //
-      // var homeHtmlToInsertIntoMainPage = ....
-
+      var homeHtmlToInsertIntoMainPage = insertProperty(homeHtml, "randomCategoryShortName", "'" + chosenCategoryShortName + "'");
+     
+      insertHtml("#main-content", homeHtmlToInsertIntoMainPage);
 
       // TODO: STEP 4: Insert the the produced HTML in STEP 3 into the main page
       // Use the existing insertHtml function for that purpose. Look through this code for an example
       // of how to do that.
       // ....
 
-     // False here because we are getting just regular HTML from the server, so no need to process JSON.
- // ***** <---- TODO: STEP 1: Substitute [...] ******
-   // Explicitely setting the flag to get JSON from server processed into an object literal
-
+    },
+    false); // False here because we are getting just regular HTML from the server, so no need to process JSON.
+}, // ***** <---- TODO: STEP 1: Substitute [...] ******
+  true); // Explicitely setting the flag to get JSON from server processed into an object literal
+});
 // *** finish **
 
 
@@ -161,7 +136,7 @@ function chooseRandomCategory (categories) {
 
   // return category object with that randomArrayIndex
   return categories[randomArrayIndex];
-};
+}
 
 
 // Load the menu categories view
@@ -236,7 +211,6 @@ function buildCategoriesViewHtml(categories,
   finalHtml += "</section>";
   return finalHtml;
 }
-
 
 
 
@@ -368,5 +342,3 @@ function insertItemPortionName(html,
 global.$dc = dc;
 
 })(window);
-
-});
